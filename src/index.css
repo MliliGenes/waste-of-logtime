@@ -6,6 +6,7 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  outline:  rgba(255, 0, 0, 0.333) 1px solid ;
 }
 
 #app{
@@ -18,10 +19,4 @@
   min-height: 100vh;
   position: absolute;
   z-index: -1;
-}
-
-.container {
-  position: absolute;
-  width: 100%;
-  min-height: 100vh;
 }
