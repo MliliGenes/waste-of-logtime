@@ -13,7 +13,7 @@ function Button({ txt, icon }) {
 function Header() {
   return (
     <header className="flex justify-between items-center">
-      <div className="text-4xl font-light">
+      <div className="text-2xl sm:text-3xl lg:text-4xl font-light">
         <span className="text-primary">Chrono</span>Leet
       </div>
     </header>
@@ -21,10 +21,6 @@ function Header() {
 }
 
 function App() {
-
-
-
-  
   useEffect(() => {
     setup();
   }, []);
@@ -32,7 +28,7 @@ function App() {
   return (
     <div id="app" className="font-poppins font-normal">
       <div className="content--canvas"></div>
-      <main className="absolute mx-auto text-white w-screen px-16 mt-10">
+      <main className="absolute inset-x-0 mx-auto text-white max-w-7xl px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-6 sm:mt-8 md:mt-10">
         <Header />
       </main>
     </div>
