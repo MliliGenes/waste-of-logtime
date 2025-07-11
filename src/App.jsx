@@ -214,7 +214,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/log_times', {
+      const response = await fetch('https://logtime-med.1337.ma/api/get_log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
