@@ -12,7 +12,7 @@ function Button({ txt, icon }) {
 
 function UserStats({ totalHours, selectedUser, startDate, endDate }) {
   const percentage = Math.min(Math.round((totalHours / 120) * 100), 100);
-  const radius = 40;
+  const radius = 60;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
   
