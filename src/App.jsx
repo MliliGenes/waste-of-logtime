@@ -25,7 +25,7 @@ function UserStats({ totalHours, selectedUser, currentMonth }) {
 
   return (
     <div className="mt-6 p-6 bg-gray-800 rounded-lg max-w-md w-full flex flex-col items-center">
-      <div className="relative w-48 h-48 mb-4">
+      <div className="relative w-52 h-52 mb-4">
         <svg className="w-full h-full" viewBox="0 0 100 100">
           <circle
             cx="50"
