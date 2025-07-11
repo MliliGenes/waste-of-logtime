@@ -12,22 +12,64 @@ function Button({ txt, icon }) {
 
 function UserStats({ totalHours }) {
   const percentage = Math.min(Math.round((totalHours / 120) * 100), 100);
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
   
   return (
-    <div className="mt-6 p-4 bg-gray-800 rounded-lg max-w-md w-full">
-      <h3 className="text-lg font-medium mb-2">Time Tracking</h3>
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-sm text-gray-300">Progress: {percentage}%</span>
-        <span className="text-sm text-gray-300">{totalHours} / 120 hours</span>
+    <div className="mt-6 p-6 bg-gray-800 rounded-lg max-w-md w-full flex flex-col items-center">
+      <div className="relative w-32 h-32 mb-4">
+        <svg className="w-full h-full" viewBox="0 0 100 100">
+          {/* Background circle */}
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke="#374151" // gray-700
+            strokeWidth="8"
+          />
+          {/* Progress circle */}
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke="#3B82F6" // primary color
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            transform="rotate(-90 50 50)"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="text-3xl font-bold text-primary">{percentage}%</div>
+          <div className="text-lg text-gray-300">{totalHours} Hours</div>
+        </div>
       </div>
-      <div className="w-full bg-gray-700 rounded-full h-2.5">
-        <div 
-          className="bg-primary h-2.5 rounded-full" 
-          style={{ width: `${percentage}%` }}
-        ></div>
+      
+      <div className="text-center">
+        <div className="text-xl font-medium text-white">{selectedUser}</div>
+        <div className="text-sm text-gray-400 mt-1">
+          {formatDate(dates.startDate)} - {formatDate(dates.endDate)}
+        </div>
       </div>
     </div>
   );
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const month = date.toLocaleString('default', { month: 'short' });
+  const day = date.getDate();
+  let suffix = 'th';
+  
+  if (day % 10 === 1 && day !== 11) suffix = 'st';
+  else if (day % 10 === 2 && day !== 12) suffix = 'nd';
+  else if (day % 10 === 3 && day !== 13) suffix = 'rd';
+  
+  return `${month} ${day}${suffix}`;
 }
 
 function UserSelector({ users, selectedUser, onUserChange, onAddUser, startDate, endDate, onDateChange }) {
