@@ -308,7 +308,7 @@ function App() {
  return (
     <div id="app" className="font-poppins font-normal">
       <div className="content--canvas"></div>
-      <main className="absolute inset-x-0 mx-auto text-white max-w-7xl px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-6 sm:mt-8 md:mt-10">
+      <main className="absolute inset-x-0 mx-auto text-white max-w-7xl px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-16 sm:mt-8 md:mt-10">
         <Header />
         <UserSelector 
           users={users}
