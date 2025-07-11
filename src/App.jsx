@@ -10,37 +10,32 @@ function Button({ txt, icon }) {
   );
 }
 
-function UserStats({ totalHours, selectedUser, currentMonth }) {
+function UserStats({ totalHours, selectedUser, startDate, endDate }) {
   const percentage = Math.min(Math.round((totalHours / 120) * 100), 100);
-  const radius = 60;
+  const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
   
-  const formatMonthRange = (date) => {
-    const currentMonth = date.toLocaleString('default', { month: 'long' });
-    const prevMonth = new Date(date.getFullYear(), date.getMonth() - 1, 1)
-      .toLocaleString('default', { month: 'long' });
-    return `${prevMonth} 28 - ${currentMonth} 27`;
-  };
-
   return (
     <div className="mt-6 p-6 bg-gray-800 rounded-lg max-w-md w-full flex flex-col items-center">
-      <div className="relative w-52 h-52 mb-4">
+      <div className="relative w-32 h-32 mb-4">
         <svg className="w-full h-full" viewBox="0 0 100 100">
+          {/* Background circle */}
           <circle
             cx="50"
             cy="50"
             r={radius}
             fill="none"
-            stroke="#374151"
+            stroke="#374151" // gray-700
             strokeWidth="8"
           />
+          {/* Progress circle */}
           <circle
             cx="50"
             cy="50"
             r={radius}
             fill="none"
-            stroke="#3B82F6"
+            stroke="#3B82F6" // primary color
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -49,52 +44,35 @@ function UserStats({ totalHours, selectedUser, currentMonth }) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-4xl font-bold text-primary">{percentage}%</div>
-          <div className="text-xl text-gray-300">{totalHours} Hours</div>
+          <div className="text-3xl font-bold text-primary">{percentage}%</div>
+          <div className="text-lg text-gray-300">{totalHours} Hours</div>
         </div>
       </div>
       
       <div className="text-center">
-        <div className="text-2xl font-medium text-white uppercase">{selectedUser}</div>
-        <div className="text-md text-gray-400 mt-1">
-          {formatMonthRange(currentMonth)}
+        <div className="text-xl font-medium text-white uppercase">{selectedUser}</div>
+        <div className="text-sm text-gray-400 mt-1">
+          {formatDate(startDate)} - {formatDate(endDate)}
         </div>
       </div>
     </div>
   );
 }
 
-function MonthSelector({ currentMonth, onMonthChange }) {
-  const months = Array.from({ length: 12 }, (_, i) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - i);
-    return date;
-  });
-
-  const formatMonth = (date) => {
-    return date.toLocaleString('default', { month: 'long', year: 'numeric' });
-  };
-
-  return (
-    <div className="w-full max-w-md">
-      <label htmlFor="month-select" className="block text-sm text-gray-300 mb-1">Select Month</label>
-      <select
-        id="month-select"
-        value={currentMonth.toISOString()}
-        onChange={(e) => onMonthChange(new Date(e.target.value))}
-        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-      >
-        {months.map((month, index) => (
-          <option key={index} value={month.toISOString()}>
-            {formatMonth(month)}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const month = date.toLocaleString('default', { month: 'short' });
+  const day = date.getDate();
+  let suffix = 'th';
+  
+  if (day % 10 === 1 && day !== 11) suffix = 'st';
+  else if (day % 10 === 2 && day !== 12) suffix = 'nd';
+  else if (day % 10 === 3 && day !== 13) suffix = 'rd';
+  
+  return `${month} ${day}${suffix}`;
 }
 
-function UserSelector({ users, selectedUser, onUserChange, onAddUser, currentMonth, onMonthChange }) {
+function UserSelector({ users, selectedUser, onUserChange, onAddUser, startDate, endDate, onDateChange }) {
   const [newUser, setNewUser] = useState("");
   const currentIndex = users.findIndex(user => user === selectedUser);
 
@@ -127,8 +105,31 @@ function UserSelector({ users, selectedUser, onUserChange, onAddUser, currentMon
 
   return (
     <div className="flex flex-col items-center gap-4 mt-8">
-      <MonthSelector currentMonth={currentMonth} onMonthChange={onMonthChange} />
+      {/* Date Inputs */}
+      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+        <div className="flex-1">
+          <label htmlFor="startDate" className="block text-sm text-gray-300 mb-1">Start Date</label>
+          <input
+            type="date"
+            id="startDate"
+            value={startDate}
+            onChange={(e) => onDateChange('startDate', e.target.value)}
+            className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+        <div className="flex-1">
+          <label htmlFor="endDate" className="block text-sm text-gray-300 mb-1">End Date</label>
+          <input
+            type="date"
+            id="endDate"
+            value={endDate}
+            onChange={(e) => onDateChange('endDate', e.target.value)}
+            className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+      </div>
 
+      {/* User Navigation */}
       <div className="flex items-center gap-4">
         <button
           onClick={handlePrevious}
@@ -160,6 +161,7 @@ function UserSelector({ users, selectedUser, onUserChange, onAddUser, currentMon
         </button>
       </div>
 
+      {/* Add User Input */}
       <div className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
         <input
           type="text"
@@ -190,13 +192,46 @@ function Header() {
   );
 }
 
+function getStandardLogPeriod() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  
+  // Calculate the previous month (handle January case)
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  
+  // Create dates for 28th of previous month and 27th of current month
+  const startDate = new Date(prevMonthYear, prevMonth, 28);
+  const endDate = new Date(currentYear, currentMonth, 27);
+  
+  // Format as YYYY-MM-DD
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  return {
+    startDate: formatDate(startDate),
+    endDate: formatDate(endDate)
+  };
+}
+
 function App() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [totalHours, setTotalHours] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // Set default dates to standard log period (28th of last month to 27th of current month)
+  const { startDate: defaultStartDate, endDate: defaultEndDate } = getStandardLogPeriod();
+  const [dates, setDates] = useState({
+    startDate: defaultStartDate,
+    endDate: defaultEndDate
+  });
 
   useEffect(() => {
     setup();
@@ -213,12 +248,9 @@ function App() {
 
   useEffect(() => {
     if (selectedUser) {
-      const startDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 28);
-      const endDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 27);
-      
-      fetchUserData(selectedUser, startDate, endDate);
+      fetchUserData(selectedUser, dates.startDate, dates.endDate);
     }
-  }, [selectedUser, currentMonth]);
+  }, [selectedUser, dates]);
 
   const fetchUserData = async (username, startDate, endDate) => {
     setLoading(true);
@@ -231,8 +263,8 @@ function App() {
         },
         body: JSON.stringify({
           login: username,
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString()
+          startDate: new Date(startDate).toISOString(),
+          endDate: new Date(endDate).toISOString()
         })
       });
       
@@ -266,7 +298,14 @@ function App() {
     setSelectedUser(username);
   };
 
-  return (
+  const handleDateChange = (type, value) => {
+    setDates(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  };
+
+ return (
     <div id="app" className="font-poppins font-normal">
       <div className="content--canvas"></div>
       <main className="absolute inset-x-0 mx-auto text-white max-w-7xl px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-6 sm:mt-8 md:mt-10">
@@ -276,8 +315,9 @@ function App() {
           selectedUser={selectedUser}
           onUserChange={handleUserChange}
           onAddUser={handleAddUser}
-          currentMonth={currentMonth}
-          onMonthChange={setCurrentMonth}
+          startDate={dates.startDate}
+          endDate={dates.endDate}
+          onDateChange={handleDateChange}
         />
         
         {loading && (
@@ -295,7 +335,8 @@ function App() {
             <UserStats 
               totalHours={totalHours} 
               selectedUser={selectedUser}
-              currentMonth={currentMonth}
+              startDate={dates.startDate}
+              endDate={dates.endDate}
             />
           </div>
         )}
