@@ -150,6 +150,33 @@ function Header() {
   );
 }
 
+function getStandardLogPeriod() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  
+  // Calculate the previous month (handle January case)
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  
+  // Create dates for 28th of previous month and 27th of current month
+  const startDate = new Date(prevMonthYear, prevMonth, 28);
+  const endDate = new Date(currentYear, currentMonth, 27);
+  
+  // Format as YYYY-MM-DD
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  return {
+    startDate: formatDate(startDate),
+    endDate: formatDate(endDate)
+  };
+}
+
 function App() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
@@ -157,11 +184,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  // Set default dates (last 30 days)
-  const today = new Date();
-  const defaultEndDate = today.toISOString().split('T')[0];
-  const defaultStartDate = new Date(today.setDate(today.getDate() - 30)).toISOString().split('T')[0];
-  
+  // Set default dates to standard log period (28th of last month to 27th of current month)
+  const { startDate: defaultStartDate, endDate: defaultEndDate } = getStandardLogPeriod();
   const [dates, setDates] = useState({
     startDate: defaultStartDate,
     endDate: defaultEndDate
@@ -190,7 +214,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('https://logtime-med.1337.ma/api/get_log', {
+      const response = await fetch('/api/log_times', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
