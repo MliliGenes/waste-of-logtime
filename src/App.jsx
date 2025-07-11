@@ -330,7 +330,7 @@ function App() {
           </div>
         )}
         
-        {selectedUser && !loading && !error && totalHours != -1 (
+        {selectedUser && !loading && !error && (totalHours != -1) && (
           <div className="flex justify-center">
             <UserStats 
               totalHours={totalHours} 
