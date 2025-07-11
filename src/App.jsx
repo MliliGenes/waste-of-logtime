@@ -1,5 +1,5 @@
 import setup from "./coalesce";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function Button({ txt, icon }) {
   return (
@@ -10,10 +10,140 @@ function Button({ txt, icon }) {
   );
 }
 
+function UserStats({ totalHours }) {
+  const percentage = Math.min(Math.round((totalHours / 120) * 100), 100);
+  
+  return (
+    <div className="mt-6 p-4 bg-gray-800 rounded-lg max-w-md w-full">
+      <h3 className="text-lg font-medium mb-2">Time Tracking</h3>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-sm text-gray-300">Progress: {percentage}%</span>
+        <span className="text-sm text-gray-300">{totalHours} / 120 hours</span>
+      </div>
+      <div className="w-full bg-gray-700 rounded-full h-2.5">
+        <div 
+          className="bg-primary h-2.5 rounded-full" 
+          style={{ width: `${percentage}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+}
+
+function UserSelector({ users, selectedUser, onUserChange, onAddUser, startDate, endDate, onDateChange }) {
+  const [newUser, setNewUser] = useState("");
+  const currentIndex = users.findIndex(user => user === selectedUser);
+
+  const handlePrevious = () => {
+    if (users.length > 0) {
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : users.length - 1;
+      onUserChange(users[prevIndex]);
+    }
+  };
+
+  const handleNext = () => {
+    if (users.length > 0) {
+      const nextIndex = currentIndex < users.length - 1 ? currentIndex + 1 : 0;
+      onUserChange(users[nextIndex]);
+    }
+  };
+
+  const handleAddUser = () => {
+    if (newUser.trim() && !users.includes(newUser.trim())) {
+      onAddUser(newUser.trim());
+      setNewUser("");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleAddUser();
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4 mt-8">
+      {/* Date Inputs */}
+      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+        <div className="flex-1">
+          <label htmlFor="startDate" className="block text-sm text-gray-300 mb-1">Start Date</label>
+          <input
+            type="date"
+            id="startDate"
+            value={startDate}
+            onChange={(e) => onDateChange('startDate', e.target.value)}
+            className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+        <div className="flex-1">
+          <label htmlFor="endDate" className="block text-sm text-gray-300 mb-1">End Date</label>
+          <input
+            type="date"
+            id="endDate"
+            value={endDate}
+            onChange={(e) => onDateChange('endDate', e.target.value)}
+            className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      {/* User Navigation */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handlePrevious}
+          disabled={users.length === 0}
+          className="p-2 bg-primary rounded-md hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        
+        <div className="min-w-[200px] text-center">
+          <div className="text-lg font-medium">
+            {selectedUser || "No user selected"}
+          </div>
+          <div className="text-sm text-gray-400">
+            {users.length > 0 ? `${currentIndex + 1} of ${users.length}` : "0 users"}
+          </div>
+        </div>
+        
+        <button
+          onClick={handleNext}
+          disabled={users.length === 0}
+          className="p-2 bg-primary rounded-md hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Add User Input */}
+      <div className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
+        <input
+          type="text"
+          value={newUser}
+          onChange={(e) => setNewUser(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Enter username"
+          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+        <button
+          onClick={handleAddUser}
+          className="px-4 py-2 bg-primary rounded-md hover:bg-primary/80 transition-colors whitespace-nowrap"
+        >
+          Add User
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Header() {
   return (
-    <header className="flex justify-between items-center">
-      <div className="text-2xl sm:text-3xl lg:text-4xl font-light">
+    <header className="flex justify-center items-center">
+      <div className="text-2xl sm:text-5xl lg:text-4xl font-light">
         <span className="text-primary">Chrono</span>Leet
       </div>
     </header>
@@ -21,15 +151,124 @@ function Header() {
 }
 
 function App() {
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [totalHours, setTotalHours] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Set default dates (last 30 days)
+  const today = new Date();
+  const defaultEndDate = today.toISOString().split('T')[0];
+  const defaultStartDate = new Date(today.setDate(today.getDate() - 30)).toISOString().split('T')[0];
+  
+  const [dates, setDates] = useState({
+    startDate: defaultStartDate,
+    endDate: defaultEndDate
+  });
+
   useEffect(() => {
     setup();
+    const savedUsers = JSON.parse(localStorage.getItem('chronoleet-users') || '[]');
+    setUsers(savedUsers);
+    if (savedUsers.length > 0) {
+      setSelectedUser(savedUsers[0]);
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('chronoleet-users', JSON.stringify(users));
+  }, [users]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      fetchUserData(selectedUser, dates.startDate, dates.endDate);
+    }
+  }, [selectedUser, dates]);
+
+  const fetchUserData = async (username, startDate, endDate) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/log_times', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          login: username,
+          startDate: new Date(startDate).toISOString(),
+          endDate: new Date(endDate).toISOString()
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      
+      const data = await response.json();
+      if (data['hydra:member'] && data['hydra:member'].length > 0) {
+        setTotalHours(data['hydra:member'][0].totalHours || 0);
+      } else {
+        setTotalHours(0);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching user data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddUser = (username) => {
+    const newUsers = [...users, username];
+    setUsers(newUsers);
+    if (!selectedUser) {
+      setSelectedUser(username);
+    }
+  };
+
+  const handleUserChange = (username) => {
+    setSelectedUser(username);
+  };
+
+  const handleDateChange = (type, value) => {
+    setDates(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  };
 
   return (
     <div id="app" className="font-poppins font-normal">
       <div className="content--canvas"></div>
       <main className="absolute inset-x-0 mx-auto text-white max-w-7xl px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-6 sm:mt-8 md:mt-10">
         <Header />
+        <UserSelector 
+          users={users}
+          selectedUser={selectedUser}
+          onUserChange={handleUserChange}
+          onAddUser={handleAddUser}
+          startDate={dates.startDate}
+          endDate={dates.endDate}
+          onDateChange={handleDateChange}
+        />
+        
+        {loading && (
+          <div className="mt-6 text-center text-gray-400">Loading...</div>
+        )}
+        
+        {error && (
+          <div className="mt-6 p-4 bg-red-900/50 rounded-lg max-w-md w-full mx-auto text-center">
+            Error: {error}
+          </div>
+        )}
+        
+        {selectedUser && !loading && !error && (
+          <div className="flex justify-center">
+            <UserStats totalHours={totalHours} />
+          </div>
+        )}
       </main>
     </div>
   );
