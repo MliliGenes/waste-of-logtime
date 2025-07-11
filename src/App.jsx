@@ -277,6 +277,7 @@ function App() {
         setTotalHours(data['hydra:member'][0].totalHours || 0);
       } else {
         setTotalHours(-1);
+        setError("User Not Found")
       }
     } catch (err) {
       setError(err.message);
