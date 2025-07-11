@@ -324,7 +324,7 @@ function App() {
           <div className="mt-6 text-center text-gray-400">Loading...</div>
         )}
         
-        {error &&  totalHours == -1  (
+        {(error || totalHours == -1) && (
           <div className="mt-6 p-4 bg-red-900/50 rounded-lg max-w-md w-full mx-auto text-center">
             Error: {error}
           </div>
