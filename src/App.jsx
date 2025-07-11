@@ -276,7 +276,7 @@ function App() {
       if (data['hydra:member'] && data['hydra:member'].length > 0) {
         setTotalHours(data['hydra:member'][0].totalHours || 0);
       } else {
-        setTotalHours(0);
+        setTotalHours(-1);
       }
     } catch (err) {
       setError(err.message);
@@ -324,13 +324,13 @@ function App() {
           <div className="mt-6 text-center text-gray-400">Loading...</div>
         )}
         
-        {error && (
+        {error &&  totalHours == -1  (
           <div className="mt-6 p-4 bg-red-900/50 rounded-lg max-w-md w-full mx-auto text-center">
             Error: {error}
           </div>
         )}
         
-        {selectedUser && !loading && !error && (
+        {selectedUser && !loading && !error && totalHours != -1 (
           <div className="flex justify-center">
             <UserStats 
               totalHours={totalHours} 
