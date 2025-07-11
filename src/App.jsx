@@ -10,7 +10,7 @@ function Button({ txt, icon }) {
   );
 }
 
-function UserStats({ totalHours }) {
+function UserStats({ totalHours, selectedUser, startDate, endDate }) {
   const percentage = Math.min(Math.round((totalHours / 120) * 100), 100);
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
@@ -50,9 +50,9 @@ function UserStats({ totalHours }) {
       </div>
       
       <div className="text-center">
-        <div className="text-xl font-medium text-white">{selectedUser}</div>
+        <div className="text-xl font-medium text-white uppercase">{selectedUser}</div>
         <div className="text-sm text-gray-400 mt-1">
-          {formatDate(dates.startDate)} - {formatDate(dates.endDate)}
+          {formatDate(startDate)} - {formatDate(endDate)}
         </div>
       </div>
     </div>
@@ -305,7 +305,7 @@ function App() {
     }));
   };
 
-  return (
+ return (
     <div id="app" className="font-poppins font-normal">
       <div className="content--canvas"></div>
       <main className="absolute inset-x-0 mx-auto text-white max-w-7xl px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-6 sm:mt-8 md:mt-10">
@@ -332,7 +332,12 @@ function App() {
         
         {selectedUser && !loading && !error && (
           <div className="flex justify-center">
-            <UserStats totalHours={totalHours} />
+            <UserStats 
+              totalHours={totalHours} 
+              selectedUser={selectedUser}
+              startDate={dates.startDate}
+              endDate={dates.endDate}
+            />
           </div>
         )}
       </main>
